@@ -7,9 +7,9 @@ import os
 
 from utilities.model_fn import model_process
 
-def baseline_classification(data_set_info_dict, config_info, backbone_name, device, results_save_dir, model_save_dir):
+def baseline_classification(data_set_info_dict, config_info, device, results_save_dir, model_save_dir):
     data_loaders = get_loaders(data_set_info_dict, config_info)
-    model = BaselineClassificationModel(backbone_name, data_set_info_dict['label_num'])
+    model = BaselineClassificationModel(config_info['backbone_name'], data_set_info_dict['label_num'])
     model.to(device)
     optimizer = optim.Adam(model.parameters(), lr=0.001)
     if not os.path.exists(model_save_dir):
