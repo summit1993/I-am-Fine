@@ -1,23 +1,36 @@
 # -*- coding: UTF-8 -*-
 import torchvision.transforms as transforms
+import pickle
+import os
+import torch
+
+root_dir = ""
 
 class Configs:
     def __init__(self):
-        configs_dict = {}
-        configs_dict['device'] = 'CPU'
-        configs_dict['epoch_num'] = 50
-        configs_dict['show_iters'] = 10
-        configs_dict['model_save_epoch'] = 5
-        configs_dict['backbone_name'] = 'resnet-101'
-        configs_dict['batch_size'] = 256
+        configs_dict = {
+            'device':  torch.device("cuda" if torch.cuda.is_available() else "cpu"),
+            'epoch_num': 50,
+            'show_iters': 10,
+            'model_save_epoch': 5,
+            'backbone_name': 'resnet-101',
+            'batch_size': 256,
+        }
         self.configs_dict = configs_dict
-
-class DataSetInfo:
-    def __init__(self):
+        train_tmp = pickle.load(open(os.path.join(root_dir, 'data/train.pkl'), 'rb'))
+        val_tmp = pickle.load(open(os.path.join(root_dir, 'data/val.pkl'), 'rb'))
+        test_tmp = pickle.load(open(os.path.join(root_dir, 'data/test.pkl'), 'rb'))
         data_set_dict = {
-            'train': {'shuffle': True, 'transform': get_transform_train()},
-            'val': {'shuffle': False, 'transform': get_transform_inference()},
-            'test': {'shuffle': False, 'transform': get_transform_inference()}
+            'label_num': 2019,
+            'train': {'shuffle': True, 'transform': get_transform_train(),
+                      'images': train_tmp['images'], 'labels': train_tmp['labels'],
+                      'image_dir': os.path.join(root_dir, 'images/train')},
+            'val': {'shuffle': False, 'transform': get_transform_inference(),
+                    'images': val_tmp['images'], 'labels': val_tmp['labels'],
+                    'image_dir': os.path.join(root_dir, 'images/val')},
+            'test': {'shuffle': False, 'transform': get_transform_inference(),
+                     'images': test_tmp['images'], 'labels': None,
+                     'image_dir': os.path.join(root_dir, 'images/test')}
         }
         self.data_set_dict = data_set_dict
 

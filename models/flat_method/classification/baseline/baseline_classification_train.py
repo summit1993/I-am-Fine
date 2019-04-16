@@ -1,15 +1,15 @@
 # -*- coding: UTF-8 -*-
 import torch.optim as optim
-
-from flat_method.classification.baseline_classification import *
+from flat_method.classification.baseline.baseline_classification_model import *
 from utilities.data_loader import *
 import os
 
 from utilities.model_fn import model_process
 
-def baseline_classification(data_set_info_dict, config_info, device, results_save_dir, model_save_dir):
+def baseline_classification_train(data_set_info_dict, config_info, results_save_dir, model_save_dir):
     data_loaders = get_loaders(data_set_info_dict, config_info)
     model = BaselineClassificationModel(config_info['backbone_name'], data_set_info_dict['label_num'])
+    device = config_info['device']
     model.to(device)
     optimizer = optim.Adam(model.parameters(), lr=0.001)
     if not os.path.exists(model_save_dir):
@@ -18,5 +18,3 @@ def baseline_classification(data_set_info_dict, config_info, device, results_sav
         os.makedirs(results_save_dir)
     log_file_name = os.path.join(results_save_dir, 'baseline_classification_results.pkl')
     model_process(model, data_loaders, optimizer, config_info, log_file_name, model_save_dir)
-
-
