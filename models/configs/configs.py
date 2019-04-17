@@ -4,7 +4,7 @@ import pickle
 import os
 import torch
 
-root_dir = ""
+root_dir = "/home1/CVPR_Fine"
 
 class Configs:
     def __init__(self):
@@ -15,6 +15,7 @@ class Configs:
             'model_save_epoch': 5,
             'backbone_name': 'resnet-101',
             'batch_size': 256,
+            'num_workers': 10
         }
         self.configs_dict = configs_dict
         train_tmp = pickle.load(open(os.path.join(root_dir, 'data/train.pkl'), 'rb'))

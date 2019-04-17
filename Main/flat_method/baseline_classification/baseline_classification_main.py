@@ -2,6 +2,9 @@
 from models.flat_method.classification.baseline.baseline_classification_train import *
 from models.configs.configs import *
 
+import os
+os.environ["CUDA_VISIBLE_DEVICES"] = "6"
+
 configs_class = Configs()
 configs_dict = configs_class.configs_dict
 data_set_dict = configs_class.data_set_dict

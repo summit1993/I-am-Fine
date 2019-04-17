@@ -32,5 +32,5 @@ def get_loaders(data_dict, config_info):
             continue
         value = data_dict[key]
         loader_set = MyDataset(value['images'], value['labels'], value['image_dir'], value['transform'])
-        loader_dict[key] = DataLoader(loader_set, batch_size=config_info['batch_size'], shuffle=value['shuffle'], num_workers=10)
+        loader_dict[key] = DataLoader(loader_set, batch_size=config_info['batch_size'], shuffle=value['shuffle'], num_workers=config_info['num_workers'])
     return loader_dict
