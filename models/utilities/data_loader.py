@@ -12,7 +12,7 @@ class MyDataset(Dataset):
         self.image_list = image_list
 
     def __len__(self):
-        return len(self.labels)
+        return len(self.image_list)
 
     def __getitem__(self, item):
         image_path = os.path.join(self.image_dir, self.image_list[item])
