@@ -1,6 +1,6 @@
 # -*- coding: UTF-8 -*-
-from models.flat_method.classification.baseline.baseline_classification_train import *
-from models.configs.configs import *
+from baseline.baseline_classification_train import *
+from configs.configs import *
 
 import os
 os.environ["CUDA_VISIBLE_DEVICES"] = "6"

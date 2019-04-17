@@ -1,5 +1,5 @@
 # -*- coding: UTF-8 -*-
-from models.backbone.resnet import *
+from backbone.resnet import *
 
 Backbone = {'resnet-18': lambda needs_flat=True: resnet18(pretrained=True, needs_flat=needs_flat),
         'resnet-34': lambda needs_flat=True: resnet34(pretrained=True, needs_flat=needs_flat),

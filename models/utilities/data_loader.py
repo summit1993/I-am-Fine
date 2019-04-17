@@ -17,6 +17,8 @@ class MyDataset(Dataset):
     def __getitem__(self, item):
         image_path = os.path.join(self.image_dir, self.image_list[item])
         img = Image.open(image_path)
+        if img.mode != 'RGB':
+            img = img.convert('RGB')
         if self.transform is not None:
             img = self.transform(img)
         if self.labels is not None:

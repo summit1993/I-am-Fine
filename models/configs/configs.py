@@ -4,7 +4,7 @@ import pickle
 import os
 import torch
 
-root_dir = "/home1/CVPR_Fine"
+root_dir = "/home1/CVPR"
 # root_dir = "C:\\Users\\summit\\Desktop\\CVPR_Workshop\\data"
 
 class Configs:
@@ -42,7 +42,7 @@ images_std = [0.5, 0.5, 0.5]
 
 def get_transform_train():
     transform_train = transforms.Compose([
-        transforms.RandomCrop(img_size, padding=4),  # 先四周填充0，再把图像随机裁剪成img_size*img_size
+        transforms.RandomCrop((img_size, img_size), padding=4),  # 先四周填充0，再把图像随机裁剪成img_size*img_size
         transforms.RandomHorizontalFlip(),  # 图像一半的概率翻转，一半的概率不翻转
         transforms.ToTensor(),
         transforms.Normalize(std=images_std, mean=images_mean),
