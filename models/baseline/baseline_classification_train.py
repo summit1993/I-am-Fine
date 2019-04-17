@@ -11,7 +11,7 @@ def baseline_classification_train(data_set_info_dict, config_info, results_save_
     model = BaselineClassificationModel(config_info['backbone_name'], data_set_info_dict['label_num'])
     device = config_info['device']
     model.to(device)
-    optimizer = optim.Adam(model.parameters(), lr=0.001)
+    optimizer = optim.Adam(model.parameters(), lr=config_info['lr'])
     if not os.path.exists(model_save_dir):
         os.makedirs(model_save_dir)
     if not os.path.exists(results_save_dir):
