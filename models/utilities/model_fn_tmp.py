@@ -49,12 +49,12 @@ def model_process(model, loaders, optimizer, config_info, log_file_name, model_s
                 for _, val_data in enumerate(val_loader, 0):
                     images, labels = val_data
                     count += len(labels)
-                    images, labels = images.to(device), labels.to(device)
+                    images = images.to(device)
                     outputs = model(images)
-                    outputs = outputs.to(device).numpy()
+                    outputs = outputs.to('cpu').numpy()
                     predictions = outputs.argsort(axis=1)
                     predictions = predictions[:, -3:]
-                    top_k_right += Top_K_Right(labels, predictions)
+                    top_k_right += Top_K_Right(labels.numpy(), predictions)
                 top_k_acc = top_k_right * 1.0 / count
                 results['val_result'].append(top_k_acc)
                 print('top 3 acc:\t', top_k_acc)
@@ -66,7 +66,7 @@ def model_process(model, loaders, optimizer, config_info, log_file_name, model_s
                 for _, test_data in enumerate(test_loader, 0):
                     images = test_data.to(device)
                     outputs = model(images)
-                    outputs = outputs.to(device).numpy()
+                    outputs = outputs.to('cpu').numpy()
                     predictions = outputs.argsort(axis=1)
                     predictions = predictions[:, -3:]
                     prediction_epoch.extend(predictions.tolist())

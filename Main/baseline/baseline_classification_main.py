@@ -9,6 +9,9 @@ configs_class = Configs()
 configs_dict = configs_class.configs_dict
 data_set_dict = configs_class.data_set_dict
 
+configs_dict['batch_size'] = 128
+configs_dict['backbone_name'] = 'resnet-50'
+
 # configs_dict['num_workers'] = 0
 # configs_dict['batch_size'] = 4
 
