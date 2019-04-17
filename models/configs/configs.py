@@ -5,6 +5,7 @@ import os
 import torch
 
 root_dir = "/home1/CVPR_Fine"
+# root_dir = "C:\\Users\\summit\\Desktop\\CVPR_Workshop\\data"
 
 class Configs:
     def __init__(self):
@@ -50,6 +51,7 @@ def get_transform_train():
 
 def get_transform_inference():
     transform_inference = transforms.Compose([
+        transforms.Resize((img_size, img_size)),
         transforms.ToTensor(),
         transforms.Normalize(std=images_std, mean=images_std),
     ])
