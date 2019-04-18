@@ -16,5 +16,5 @@ def baseline_classification_train(data_set_info_dict, config_info, results_save_
         os.makedirs(model_save_dir)
     if not os.path.exists(results_save_dir):
         os.makedirs(results_save_dir)
-    log_file_name = os.path.join(results_save_dir, 'baseline_classification_results.pkl')
+    log_file_name = os.path.join(results_save_dir, 'baseline_classification_results')
     model_process(model, data_loaders, optimizer, config_info, log_file_name, model_save_dir)

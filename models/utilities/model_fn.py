@@ -4,18 +4,17 @@ import torch.nn as nn
 import os
 from utilities.my_metrics import Top_K_Right
 
-def model_process(model, loaders, optimizer, config_info, log_file_name, model_save_dir):
+def model_process(model, loaders, optimizer, config_info, log_file_name_prefix, model_save_dir):
     device = config_info['device']
     epoch_num = config_info['epoch_num']
     show_iters = config_info['show_iters']
     model_save_epoch = config_info['model_save_epoch']
-    results = {}
-    results['val_result'] = []
-    results['test_predictions'] = []
+    results = []
     running_loss = 0.0
     criterion = nn.CrossEntropyLoss()
     train_loader = loaders['train']
     for epoch in range(epoch_num):
+        epoch_result = {}
         for step, data in enumerate(train_loader, 0):
             images, labels = data
             images, labels = images.to(device), labels.to(device)
@@ -56,7 +55,7 @@ def model_process(model, loaders, optimizer, config_info, log_file_name, model_s
                     predictions = predictions[:, -3:]
                     top_k_right += Top_K_Right(labels.numpy(), predictions)
                 top_k_acc = top_k_right * 1.0 / count
-                results['val_result'].append(top_k_acc)
+                epoch_result['val_result'] = top_k_acc
                 print('top 3 acc:\t', top_k_acc)
 
             print('*' * 10, 'Begin to predict test result', '*' * 10)
@@ -70,6 +69,9 @@ def model_process(model, loaders, optimizer, config_info, log_file_name, model_s
                     predictions = outputs.argsort(axis=1)
                     predictions = predictions[:, -3:]
                     prediction_epoch.extend(predictions.tolist())
-                results['test_predictions'].append(prediction_epoch)
+                epoch_result['test_predictions'] = prediction_epoch
 
-    pickle.dump(results, open(log_file_name, 'wb'))
+        pickle.dump(epoch_result, open(log_file_name_prefix + '_' + str(epoch) + '.pkl', 'wb'))
+        results.append(epoch_result)
+
+    pickle.dump(results, open(log_file_name_prefix + '_all.pkl', 'wb'))
