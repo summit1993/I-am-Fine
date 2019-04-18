@@ -17,7 +17,7 @@ class Configs:
             'backbone_name': 'resnet-101',
             'batch_size': 256,
             'num_workers': 10,
-            'lr': 0.00001,
+            'lr': 1e-5,
         }
         self.configs_dict = configs_dict
         train_tmp = pickle.load(open(os.path.join(root_dir, 'data/train.pkl'), 'rb'))

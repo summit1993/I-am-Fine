@@ -14,6 +14,8 @@ data_set_dict = configs_class.data_set_dict
 
 configs_dict['batch_size'] = 128
 configs_dict['backbone_name'] = 'resnet-50'
+configs_dict['show_iters'] = 100
+configs_dict['model_save_epoch'] = 1
 
 # configs_dict['num_workers'] = 0
 # configs_dict['batch_size'] = 4
