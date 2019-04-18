@@ -4,7 +4,7 @@ from baseline.baseline_classification_model import *
 from utilities.data_loader import *
 import os
 
-from utilities.model_fn_tmp import model_process
+from utilities.model_fn import model_process
 
 def baseline_classification_train(data_set_info_dict, config_info, results_save_dir, model_save_dir):
     data_loaders = get_loaders(data_set_info_dict, config_info)
