@@ -8,10 +8,10 @@ from utilities.model_fn import model_process
 
 def baseline_classification_train(data_set_info_dict, config_info, results_save_dir, model_save_dir):
     data_loaders = get_loaders(data_set_info_dict, config_info)
-    model = BaselineClassificationModel(config_info['backbone_name'], data_set_info_dict['label_num'])
+    model = BaselineClassificationModel(config_info['backbone_name'], data_set_info_dict['label_num'], config_info['fine_tune_backbone'])
     device = config_info['device']
     model.to(device)
-    optimizer = optim.Adam(model.parameters(), lr=config_info['lr'])
+    optimizer = optim.Adam(filter(lambda p: p.requires_grad, model.parameters()), lr=config_info['lr'])
     if not os.path.exists(model_save_dir):
         os.makedirs(model_save_dir)
     if not os.path.exists(results_save_dir):

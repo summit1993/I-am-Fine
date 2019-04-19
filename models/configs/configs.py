@@ -13,11 +13,12 @@ class Configs:
             'device':  torch.device("cuda" if torch.cuda.is_available() else "cpu"),
             'epoch_num': 20,
             'show_iters': 10,
-            'model_save_epoch': 5,
+            'model_save_epoch': 1,
             'backbone_name': 'resnet-101',
             'batch_size': 256,
             'num_workers': 10,
             'lr': 1e-5,
+            'fine_tune_backbone': True
         }
         self.configs_dict = configs_dict
         train_tmp = pickle.load(open(os.path.join(root_dir, 'data/train.pkl'), 'rb'))

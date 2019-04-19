@@ -6,9 +6,12 @@ import torch
 from backbone.backbone import *
 
 class BilinearCNNModel(nn.Module):
-    def __init__(self, backbone_name, label_num, inc=2048,  c1=512, c2=64):
+    def __init__(self, backbone_name, label_num, inc=2048,  c1=256, c2=32, fine_tune_backbone=True):
         super(BilinearCNNModel, self).__init__()
         self.backbone = Backbone[backbone_name](needs_flat=False)
+        if not fine_tune_backbone:
+            for p in self.backbone.parameters():
+                p.requires_grad = False
         self.conv1 = nn.Conv2d(inc, c1, kernel_size=1)
         self.conv2 = nn.Conv2d(inc, c2, kernel_size=1)
         self.fc = nn.Linear(c1 * c2, label_num)
@@ -22,7 +25,7 @@ class BilinearCNNModel(nn.Module):
         x_b = x1 * x2
         x_b = x_b.sum(-1) / x_b.shape[-1]
         x_b = x_b.view(x_b.shape[0], -1)
-        x_b = torch.sign(x_b) * torch.sqrt(torch.abs(x_b))
+        x_b = torch.sign(x_b) * torch.sqrt(torch.abs(x_b) + 1e-5)
         x_b = f.normalize(x_b)
         x_out = self.fc(x_b)
         return x_out
