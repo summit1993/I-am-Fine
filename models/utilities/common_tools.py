@@ -56,3 +56,13 @@ def grab_gpu(frequency=1, total=3600 * 24, gpu_mem=9):
             return max_index
         time.sleep(frequency)
     return -1
+
+def unfreeze_backbone(backbone, unfreeze_layers):
+    if unfreeze_layers == 'all':
+        return
+    for p in backbone.parameters():
+        p.requires_grad = False
+    for layer_name in unfreeze_layers:
+        layer = backbone.__getattr__(layer_name)
+        for p in layer.parameters():
+            p.requires_grad = True
