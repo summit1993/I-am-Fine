@@ -1,4 +1,5 @@
 # -*- coding: UTF-8 -*-
+import torch
 import torch.optim as optim
 from biliner_cnn.bilinear_cnn_model import *
 from utilities.data_loader import *
@@ -10,7 +11,10 @@ def bilinear_cnn_model_train(data_set_info_dict, config_info, results_save_dir, 
     data_loaders = get_loaders(data_set_info_dict, config_info)
     model = BilinearCNNModel(config_info['backbone_name'], data_set_info_dict['label_num'],
                              config_info['inc'], config_info['c1'], config_info['c2'],
-                             config_info['fine_tune_backbone'])
+                             config_info['backbone_unfreeze_layers'])
+    if config_info['pre_model'] is not None:
+        checkpoint = torch.load(config_info['pre_model'])
+        model.load_state_dict(checkpoint['model_state_dict'], strict=False)
     device = config_info['device']
     model.to(device)
     optimizer = optim.Adam(model.parameters(), lr=config_info['lr'])

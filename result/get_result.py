@@ -7,7 +7,7 @@ test_pkl = pickle.load(open('test.pkl', 'rb'))
 predicted = data_pkl['test_predictions']
 ids = test_pkl['images']
 
-f = open('result.csv', 'w')
+f = open('Poker.csv', 'w')
 f.write('id,predicted\n')
 
 for i in range(len(ids)):

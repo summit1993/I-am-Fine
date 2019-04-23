@@ -5,6 +5,7 @@ import os
 import torch
 
 root_dir = "/home1/CVPR"
+program_dir = "/home1/xcd/program/I-am-Fine"
 # root_dir = "C:\\Users\\summit\\Desktop\\CVPR_Workshop\\data"
 
 class Configs:
@@ -18,7 +19,9 @@ class Configs:
             'batch_size': 256,
             'num_workers': 10,
             'lr': 1e-5,
-            'fine_tune_backbone': True
+            'backbone_unfreeze_layers': 'all',
+            'pre_model': None,
+            'model_zoo': os.path.join(program_dir, 'model_zoo'),
         }
         self.configs_dict = configs_dict
         train_tmp = pickle.load(open(os.path.join(root_dir, 'data/train.pkl'), 'rb'))

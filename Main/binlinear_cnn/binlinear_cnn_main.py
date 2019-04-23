@@ -17,7 +17,9 @@ configs_dict['c1'] = 256
 configs_dict['c2'] = 32
 
 configs_dict['batch_size'] = 128
-configs_dict['backbone_name'] = 'resnet-50'
+configs_dict['backbone_name'] = 'resnet-101'
+configs_dict['backbone_unfreeze_layers'] = ['layer3', 'layer4']
+configs_dict['pre_model'] = os.path.join(configs_dict['model_zoo'], 'baseline_fc_101_checkpoint_6.tar')
 configs_dict['show_iters'] = 100
 configs_dict['model_save_epoch'] = 1
 
