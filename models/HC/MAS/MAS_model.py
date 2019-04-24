@@ -14,7 +14,7 @@ class MASModel(nn.Module):
         super(MASModel, self).__init__()
         self.backbone = Backbone[backbone_name]()
         self.hierarchy  = hierarchy
-        self.HC_loss = partial(MAS_loss, use_all=use_all)
+        self.HC_loss = partial(MAS_loss,  hierarchy=self.hierarchy, use_all=use_all)
         self.HC_prediction = partial(HC_prediction, hierarchy=self.hierarchy, fn='BCE')
         unfreeze_backbone(self.backbone, backbone_unfreeze_layers)
         self.inners_code_list = self.hierarchy['inners_code_list']
@@ -32,7 +32,7 @@ class MASModel(nn.Module):
 
     def forward(self, x):
         outputs = {}
+        x = self.backbone(x)
         for code in self.heads_index:
-            print(code)
             outputs[code] = self.heads.__getattr__(str(code))(x)
         return outputs

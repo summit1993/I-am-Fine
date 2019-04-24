@@ -18,7 +18,7 @@ def model_process(model, loaders, optimizer, config_info, log_file_name_prefix, 
             images, labels = images.to(device), labels.to(device)
             optimizer.zero_grad()
             outputs = model(images)
-            loss = model.HC_loss(outputs, labels)
+            loss = model.HC_loss(outputs, labels, device)
             loss.backward()
             optimizer.step()
             running_loss += loss.item()

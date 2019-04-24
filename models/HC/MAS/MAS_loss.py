@@ -2,7 +2,7 @@
 import torch
 import torch.nn as nn
 
-def MAS_loss(outputs, true_labels, hierarchy, device, use_all=True):
+def MAS_loss(outputs, true_labels, device, hierarchy, use_all=True):
     criterion = nn.BCEWithLogitsLoss(reduction='none')
     samples_count = len(true_labels)
     total_loss = 0.0
