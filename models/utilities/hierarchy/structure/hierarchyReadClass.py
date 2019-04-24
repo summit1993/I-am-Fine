@@ -52,23 +52,21 @@ class HierarchyReadClass:
         for i in range(len(self.leafs_code_list)):
             leaf_code = self.leafs_code_list[i]
             self.leaf_index_map[leaf_code] = i
-        self.inner_nodes_code_list = sorted(list(inners_code_set))
-        self.root_nodes_code_list = sorted(list(roots_code_set))
 
-        for code in self.inner_nodes_code_list:
-            self.node_dict[code].sort_children_code()
-        for code in self.root_nodes_code_list:
-            self.node_dict[code].sort_children_code()
-
+        root_nodes_code_list = sorted(list(roots_code_set))
         node_tmp = NodeClass(-1, -1)
-        for a in self.root_nodes_code_list:
+        for a in root_nodes_code_list:
             node_tmp.add_child_code(a)
         node_tmp.sort_children_code()
         self.node_dict[-1] = node_tmp
+        inners_code_set.add(-1)
+        self.inner_nodes_code_list = sorted(list(inners_code_set))
+
+        for code in self.inner_nodes_code_list:
+            self.node_dict[code].sort_children_code()
 
     def get_hierarchy_info(self):
         hierarchy_info = {}
-        hierarchy_info['roots_code_list'] = self.root_nodes_code_list
         hierarchy_info['inners_code_list'] = self.inner_nodes_code_list
         hierarchy_info['leafs_code_list'] = self.leafs_code_list
         hierarchy_info['paths'] = self.paths_dict
