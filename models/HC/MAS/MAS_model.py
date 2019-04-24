@@ -2,8 +2,8 @@
 import torch.nn as nn
 from functools import partial
 
-from models.HC.local_model.local_model import get_local_model
-from models.HC.HC_prediction import *
+from HC.local_model.local_model import get_local_model
+from HC.HC_prediction import *
 from backbone.backbone import *
 from utilities.common_tools import unfreeze_backbone
 from HC.MAS.MAS_loss import *
@@ -23,15 +23,16 @@ class MASModel(nn.Module):
         nodes = self.hierarchy['nodes']
         for code in self.inners_code_list:
             node = nodes[code]
-            children_count = len(node.get_children())
+            children_count = len(node.get_children_code())
             if children_count > 1:
                 local_model = get_local_model(local_model_name,
-                            input_size=(self.backbone.final_feature_num), label_num=children_count)
+                            input_size=[self.backbone.final_feature_num,], label_num=children_count)
                 self.heads.add_module(str(code), local_model)
                 self.heads_index.append(code)
 
     def forward(self, x):
         outputs = {}
         for code in self.heads_index:
-            outputs[code] = self.__getattr__(str(code))(x)
+            print(code)
+            outputs[code] = self.heads.__getattr__(str(code))(x)
         return outputs

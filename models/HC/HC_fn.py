@@ -1,6 +1,5 @@
 import pickle
 import torch
-import torch.nn as nn
 import os
 from utilities.my_metrics import Top_K_Right
 

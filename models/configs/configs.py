@@ -3,6 +3,7 @@ import torchvision.transforms as transforms
 import pickle
 import os
 import torch
+from utilities.hierarchy.structure.hierarchyReadClass import HierarchyReadClass
 
 root_dir = "/home1/CVPR"
 program_dir = "/home1/xcd/program/I-am-Fine"
@@ -23,6 +24,7 @@ class Configs:
             'pre_model': None,
             'model_zoo': os.path.join(program_dir, 'model_zoo'),
             'model_type': 'baseline',
+            'local_model_name': 'softmax',
         }
         self.configs_dict = configs_dict
         train_tmp = pickle.load(open(os.path.join(root_dir, 'data/train.pkl'), 'rb'))
@@ -30,6 +32,7 @@ class Configs:
         test_tmp = pickle.load(open(os.path.join(root_dir, 'data/test.pkl'), 'rb'))
         data_set_dict = {
             'label_num': 2019,
+            'hierarchy': HierarchyReadClass(os.path.join(root_dir, 'data', 'hierarchy.txt')).get_hierarchy_info(),
             'train': {'shuffle': True, 'transform': get_transform_train(),
                       'images': train_tmp['images'], 'labels': train_tmp['labels'],
                       'image_dir': os.path.join(root_dir, 'images/train')},
