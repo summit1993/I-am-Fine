@@ -22,6 +22,7 @@ class Configs:
             'backbone_unfreeze_layers': 'all',
             'pre_model': None,
             'model_zoo': os.path.join(program_dir, 'model_zoo'),
+            'model_type': 'baseline',
         }
         self.configs_dict = configs_dict
         train_tmp = pickle.load(open(os.path.join(root_dir, 'data/train.pkl'), 'rb'))

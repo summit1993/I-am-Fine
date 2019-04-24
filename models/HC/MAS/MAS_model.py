@@ -1,16 +1,21 @@
 # -*- coding: UTF-8 -*-
 import torch.nn as nn
+from functools import partial
 
 from models.HC.local_model.local_model import get_local_model
+from models.HC.HC_prediction import *
 from backbone.backbone import *
 from utilities.common_tools import unfreeze_backbone
+from HC.MAS.MAS_loss import *
 
 class MASModel(nn.Module):
     # now only support softmax local model
-    def __init__(self, backbone_name, hierarchy, backbone_unfreeze_layers='all', local_model_name = 'softmax'):
+    def __init__(self, backbone_name, hierarchy, backbone_unfreeze_layers='all', local_model_name='softmax', use_all=True):
         super(MASModel, self).__init__()
         self.backbone = Backbone[backbone_name]()
         self.hierarchy  = hierarchy
+        self.HC_loss = partial(MAS_loss, use_all=use_all)
+        self.HC_prediction = partial(HC_prediction, hierarchy=self.hierarchy, fn='BCE')
         unfreeze_backbone(self.backbone, backbone_unfreeze_layers)
         self.inners_code_list = self.hierarchy['inners_code_list']
         self.heads = nn.Sequential()

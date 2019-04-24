@@ -3,7 +3,7 @@ import queue
 import torch
 import torch.nn.functional as F
 
-def HC_prediction(outputs, hierarchy):
+def HC_prediction(outputs, hierarchy, fn='sotmax'):
     que = queue.Queue()
     leaf_index_map = hierarchy['leaf_index_map']
     path_length = {}
@@ -20,9 +20,10 @@ def HC_prediction(outputs, hierarchy):
         p_len = path_length[code]
         if children_count > 0:
             if children_count > 1:
-                output = F.softmax(outputs[code], dim=1)
-                output = output[:, :-1]
-                output = torch.log(output)
+                if fn == 'softmax':
+                    output = F.log_softmax(outputs[code], dim=1)
+                elif fn == 'BCE':
+                    output = torch.log(torch.sigmoid(outputs[code]))
                 children_scores = output.transpose(1, 0) + code_score_dict[code]
                 children_scores = children_scores.transpose(1, 0)
                 for i in range(children_count):
