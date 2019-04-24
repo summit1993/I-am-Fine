@@ -33,7 +33,8 @@ def MAS_loss(outputs, true_labels, device, hierarchy, use_all=True):
         loss = criterion(output, node_labels)
         if not use_all:
             weight_instance = weight_instance.to(device)
-            loss = loss * weight_instance
+            loss = loss.transpose(1, 0) * weight_instance
+            loss = loss.transpose(1, 0)
             loss = loss.sum()
             if positive_count > 0:
                 loss = loss / positive_count

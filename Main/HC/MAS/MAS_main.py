@@ -18,5 +18,6 @@ configs_dict['backbone_unfreeze_layers'] = ['layer3', 'layer4']
 configs_dict['pre_model'] = os.path.join(configs_dict['model_zoo'], 'baseline_fc_101_checkpoint_6.tar')
 configs_dict['show_iters'] = 100
 configs_dict['model_save_epoch'] = 1
+configs_dict['use_all'] = False
 
 MAS_model_train(data_set_dict, configs_dict, 'results', 'models')
