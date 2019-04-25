@@ -9,6 +9,7 @@ def HC_prediction(outputs, hierarchy, fn='sotmax'):
     path_length = {}
     nodes = hierarchy['nodes']
     code_score_dict = {}
+    code_score_dict[-1] = 0
     predictions = torch.zeros(outputs[-1].shape[0], len(leaf_index_map))
     que.put(-1)
     path_length[-1] = 0

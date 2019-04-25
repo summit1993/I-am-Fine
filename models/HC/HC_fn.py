@@ -47,7 +47,8 @@ def model_process(model, loaders, optimizer, config_info, log_file_name_prefix, 
                     images, labels = val_data
                     count += len(labels)
                     images = images.to(device)
-                    outputs = model.HC_prediction(images)
+                    outputs = model(images)
+                    outputs = model.HC_prediction(outputs)
                     outputs = outputs.to('cpu').numpy()
                     predictions = outputs.argsort(axis=1)
                     predictions = predictions[:, -3:]
@@ -62,7 +63,8 @@ def model_process(model, loaders, optimizer, config_info, log_file_name_prefix, 
                 test_loader = loaders['test']
                 for _, test_data in enumerate(test_loader, 0):
                     images = test_data.to(device)
-                    outputs = model.HC_prediction(images)
+                    outputs = model(images)
+                    outputs = model.HC_prediction(outputs)
                     outputs = outputs.to('cpu').numpy()
                     predictions = outputs.argsort(axis=1)
                     predictions = predictions[:, -3:]
