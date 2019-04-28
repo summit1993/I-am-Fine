@@ -8,6 +8,7 @@
 
 ## 第三方
 * Compact Bilinear Pooling (thanks very much)
+
 https://github.com/gdlg/pytorch_compact_bilinear_pooling
 
 ## 配置
