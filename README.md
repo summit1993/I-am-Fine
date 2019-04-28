@@ -5,6 +5,11 @@
 * Pytorch 1.0
 * Ubuntu 16.04
 * CUDA 8.0 [+]
+
+## 第三方
+* Compact Bilinear Pooling (thanks very much)
+https://github.com/gdlg/pytorch_compact_bilinear_pooling
+
 ## 配置
 在环境变量下加入models模块，例如
 export PYTHONPATH=$PYTHONPATH:/home1/xcd/program/I-am-Fine/models
