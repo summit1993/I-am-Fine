@@ -21,6 +21,7 @@ class Configs:
             'batch_size': 256,
             'num_workers': 10,
             'lr': 1e-5,
+            'weight_decay': 1e-5,
             'backbone_unfreeze_layers': 'all',
             'pre_model': None,
             'model_zoo': os.path.join(program_dir, 'model_zoo'),

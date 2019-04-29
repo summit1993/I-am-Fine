@@ -12,7 +12,7 @@ def baseline_classification_train(data_set_info_dict, config_info, results_save_
                                         config_info['backbone_unfreeze_layers'])
     device = config_info['device']
     model.to(device)
-    optimizer = optim.Adam(filter(lambda p: p.requires_grad, model.parameters()), lr=config_info['lr'])
+    optimizer = optim.Adam(filter(lambda p: p.requires_grad, model.parameters()), lr=config_info['lr'], weight_decay=config_info['weight_decay'])
     if not os.path.exists(model_save_dir):
         os.makedirs(model_save_dir)
     if not os.path.exists(results_save_dir):
