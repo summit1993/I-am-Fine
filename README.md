@@ -9,17 +9,17 @@
 ## Third Party
 * Compact Bilinear Pooling (thanks very much)
 
- &ensp;&ensp; https://github.com/gdlg/pytorch_compact_bilinear_pooling
+ &ensp;&ensp;&ensp;&ensp; https://github.com/gdlg/pytorch_compact_bilinear_pooling
 
 ## Config
 * add the models module to the system envoriment, e.g., 
 
-&ensp;&ensp; export PYTHONPATH=$PYTHONPATH:/home1/xcd/program/I-am-Fine/models
+&ensp;&ensp;&ensp;&ensp; export PYTHONPATH=$PYTHONPATH:/home1/xcd/program/I-am-Fine/models
 
 ## Run
 * Run the python file in Main folders, e.g., 
 
-&ensp;&ensp; python baseline_classification_main.py
+&ensp;&ensp;&ensp;&ensp; python baseline_classification_main.py
 
 ## Models
 * Bilinear CNN Models for Fine-grained Visual Recognition. CVPR, 2015
