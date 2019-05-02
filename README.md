@@ -1,6 +1,6 @@
 # I am Fine
 
-## Envoriment
+## Environment
 * Python 3.6 [+]
 * Pytorch 1.0
 * Ubuntu 16.04
@@ -12,7 +12,7 @@
  &ensp;&ensp;&ensp;&ensp; https://github.com/gdlg/pytorch_compact_bilinear_pooling
 
 ## Config
-* add the models module to the system envoriment, e.g., 
+* add the models module to the system environment, e.g., 
 
 &ensp;&ensp;&ensp;&ensp; export PYTHONPATH=$PYTHONPATH:/home1/xcd/program/I-am-Fine/models
 
