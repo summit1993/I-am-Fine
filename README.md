@@ -36,9 +36,9 @@
 | 6 | 89.4 | 94.5 | 92.2 | 93.0 |
 
 
-[1] Generating Attention from Classifier Activations for Fine-grained Recognition. arXiv, 2018-11
-[2] Learning to Navigate for Fine-grained Classification. ECCV, 2018
-[3] Weakly Supervised Complementary Parts Models for Fine-Grained Image Classification from the Bottom Up. arXiv, 2019-3
-[4] Guided Zoom: Questioning Network Evidence for Fine-grained Classification. arXiv, 2018-12
-[5] Look Closer to See Better: Recurrent Attention Convolutional Neural Network for Fine-grained Image Recognition. CVPR, 2017
-[6] See Better Before Looking Closer: Weakly Supervised Data Augmentation Network for Fine-Grained Visual Classification. arXiv, 2019-3
+1. Generating Attention from Classifier Activations for Fine-grained Recognition. arXiv, 2018-11
+2. Learning to Navigate for Fine-grained Classification. ECCV, 2018
+3. Weakly Supervised Complementary Parts Models for Fine-Grained Image Classification from the Bottom Up. arXiv, 2019-3
+4. Guided Zoom: Questioning Network Evidence for Fine-grained Classification. arXiv, 2018-12
+5. Look Closer to See Better: Recurrent Attention Convolutional Neural Network for Fine-grained Image Recognition. CVPR, 2017
+6. See Better Before Looking Closer: Weakly Supervised Data Augmentation Network for Fine-Grained Visual Classification. arXiv, 2019-3
