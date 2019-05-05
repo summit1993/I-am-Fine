@@ -14,8 +14,8 @@ in_channels_dict = {
     'resnet-152': 2048
 }
 
-inner_channel = 128
-output_channel = 512
+inner_channel = 64
+output_channel = 256
 
 def create_local_module(input_channel, label_num):
     local_module = nn.Sequential()
@@ -32,7 +32,8 @@ def create_local_module(input_channel, label_num):
     local_module.add_module('local_extract', local_extract)
     fuse_extract = nn.Sequential(
         nn.ReLU(),
-        nn.Conv2d(output_channel, output_channel, kernel_size=1, padding=0)
+        nn.Conv2d(output_channel, output_channel, kernel_size=1, padding=0),
+        nn.BatchNorm2d(output_channel)
     )
     local_module.add_module('fuse_extract', fuse_extract)
     local_module.add_module('pool', nn.AdaptiveAvgPool2d(1))
@@ -41,14 +42,14 @@ def create_local_module(input_channel, label_num):
     return local_module
 
 class PokerModel(nn.Module):
-    def __init__(self, backbone_name, hierarchy, backbone_unfreeze_layers='all', ):
+    def __init__(self, backbone_name, hierarchy, backbone_unfreeze_layers='all', loss_fn='softmax'):
         super(PokerModel, self).__init__()
         input_channel = in_channels_dict[backbone_name]
         self.backbone = Backbone[backbone_name](False)
         unfreeze_backbone(self.backbone, backbone_unfreeze_layers)
         self.hierarchy = hierarchy
-        self.HC_loss = partial(Poker_loss, hierarchy=self.hierarchy)
-        self.HC_prediction = partial(HC_prediction, hierarchy=self.hierarchy)
+        self.HC_loss = partial(Poker_loss, hierarchy=self.hierarchy, loss_fn=loss_fn)
+        self.HC_prediction = partial(HC_prediction, hierarchy=self.hierarchy, fn=loss_fn)
         self.inners_code_list = self.hierarchy['inners_code_list']
         nodes = self.hierarchy['nodes']
         self.relu = nn.ReLU()
@@ -60,10 +61,12 @@ class PokerModel(nn.Module):
                 continue
             if code == -1:
                 label_num = children_count
-                local_input_channel = input_channel
             else:
-                label_num = children_count + 1
-                local_input_channel = input_channel
+                if loss_fn == 'softmax':
+                    label_num = children_count + 1
+                else:
+                    label_num = children_count
+            local_input_channel = input_channel
             local_module = create_local_module(local_input_channel, label_num)
             self.local_modules.add_module(str(code), local_module)
 

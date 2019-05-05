@@ -2,8 +2,11 @@
 import torch
 import torch.nn as nn
 
-def Poker_loss(outputs, true_labels, device, hierarchy):
-    criterion = nn.CrossEntropyLoss()
+def Poker_loss(outputs, true_labels, device, hierarchy, loss_fn='softmax'):
+    if loss_fn == 'softmax':
+        criterion = nn.CrossEntropyLoss()
+    else:
+        criterion = nn.BCEWithLogitsLoss()
     samples_count = len(true_labels)
     total_loss = 0.0
     nodes = hierarchy['nodes']
@@ -14,15 +17,22 @@ def Poker_loss(outputs, true_labels, device, hierarchy):
         children_list = node.get_children_code()
         children_num = len(children_list)
         children_set = set(children_list)
-        node_labels = torch.zeros(samples_count, dtype=torch.long)
+        if loss_fn == 'softmax':
+            node_labels = torch.zeros(samples_count, dtype=torch.long)
+        else:
+            node_labels = torch.zeros((samples_count, len(children_list)))
         for i in range(samples_count):
             true_label = true_labels[i].item()
             u_set = paths[true_label] & children_set
             if len(u_set) > 0:
                 child_index = children_list.index(list(u_set)[0])
-                node_labels[i] = child_index
+                if loss_fn == 'softmax':
+                    node_labels[i] = child_index
+                else:
+                    node_labels[i][child_index] = 1.0
             else:
-                node_labels[i] = children_num
+                if loss_fn == 'softmax':
+                    node_labels[i] = children_num
 
         node_labels = node_labels.to(device)
         loss = criterion(output, node_labels)

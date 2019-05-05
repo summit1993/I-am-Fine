@@ -7,7 +7,7 @@ from HC.HC_fn import *
 def Poker_model_train(data_set_info_dict, config_info, results_save_dir, model_save_dir):
     data_loaders = get_loaders(data_set_info_dict, config_info)
     model = PokerModel(config_info['backbone_name'], data_set_info_dict['hierarchy'],
-                     config_info['backbone_unfreeze_layers'])
+                     config_info['backbone_unfreeze_layers'], config_info['loss_fn'])
     if config_info['pre_model'] is not None:
         checkpoint = torch.load(config_info['pre_model'])
         model.load_state_dict(checkpoint['model_state_dict'], strict=False)

@@ -12,6 +12,8 @@ configs_class = Configs()
 configs_dict = configs_class.configs_dict
 data_set_dict = configs_class.data_set_dict
 
+configs_dict['loss_fn'] = 'BCE'
+
 configs_dict['batch_size'] = 128
 configs_dict['backbone_name'] = 'resnet-101'
 configs_dict['backbone_unfreeze_layers'] = ['layer3', 'layer4']
