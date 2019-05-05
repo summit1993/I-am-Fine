@@ -2,7 +2,6 @@
 import torch.nn as nn
 from backbone.backbone import *
 from utilities.common_tools import unfreeze_backbone
-import queue
 from functools import partial
 from HC.Poker.Poker_loss import *
 from HC.HC_prediction import *
@@ -16,25 +15,26 @@ in_channels_dict = {
 }
 
 inner_channel = 128
+output_channel = 512
 
-def create_local_module(input_channel, output_channel, label_num):
+def create_local_module(input_channel, label_num):
     local_module = nn.Sequential()
-    conv1 = nn.Conv2d(input_channel, inner_channel, kernel_size=1, padding=0)
-    bn1 = nn.BatchNorm2d(inner_channel)
-    conv2 = nn.Conv2d(inner_channel, inner_channel, kernel_size=3, padding=1)
-    bn2 = nn.BatchNorm2d(inner_channel)
-    conv3 = nn.Conv2d(inner_channel, output_channel, kernel_size=1, padding=0)
-    bn3 = nn.BatchNorm2d(output_channel)
-    local_extract = nn.Sequential()
-    local_extract.add_module('conv1', conv1)
-    local_extract.add_module('bn1', bn1)
-    local_extract.add_module('relu1', nn.ReLU())
-    local_extract.add_module('conv2', conv2)
-    local_extract.add_module('bn2', bn2)
-    local_extract.add_module('relu2', nn.ReLU())
-    local_extract.add_module('conv3', conv3)
-    local_extract.add_module('bn3', bn3)
+    local_extract = nn.Sequential(
+        nn.Conv2d(input_channel, inner_channel, kernel_size=1, padding=0),
+        nn.BatchNorm2d(inner_channel),
+        nn.ReLU(),
+        nn.Conv2d(inner_channel, inner_channel, kernel_size=3, padding=1),
+        nn.BatchNorm2d(inner_channel),
+        nn.ReLU(),
+        nn.Conv2d(inner_channel, output_channel, kernel_size=1, padding=0),
+        nn.BatchNorm2d(output_channel)
+    )
     local_module.add_module('local_extract', local_extract)
+    fuse_extract = nn.Sequential(
+        nn.ReLU(),
+        nn.Conv2d(output_channel, output_channel, kernel_size=1, padding=0)
+    )
+    local_module.add_module('fuse_extract', fuse_extract)
     local_module.add_module('pool', nn.AdaptiveAvgPool2d(1))
     fc = nn.Linear(output_channel, label_num)
     local_module.add_module('fc', fc)
@@ -64,7 +64,7 @@ class PokerModel(nn.Module):
             else:
                 label_num = children_count + 1
                 local_input_channel = input_channel
-            local_module = create_local_module(local_input_channel, input_channel, label_num)
+            local_module = create_local_module(local_input_channel, label_num)
             self.local_modules.add_module(str(code), local_module)
 
     def forward(self, x, return_final_features=False):
@@ -85,13 +85,11 @@ class PokerModel(nn.Module):
                 que.put(child_code)
             local_module = self.local_modules.__getattr__(str(code))
             if code == -1:
-                in_x = x
+                parent_x = 0.0
             else:
                 parent_x = feature_outputs_dict[node.get_parent_code()]
-                # in_x = torch.cat([parent_x, x], dim=1)
-                in_x = parent_x + x
-            in_x = self.relu(in_x)
-            local_feature = local_module.local_extract(in_x)
+            local_feature = local_module.local_extract(x)
+            local_feature = local_module.fuse_extract(local_feature + parent_x)
             feature_outputs_dict[code] = local_feature
             local_x = local_module.pool(local_feature)
             local_x = local_x.view(local_x.size(0), -1)
