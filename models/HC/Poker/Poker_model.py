@@ -17,7 +17,7 @@ in_channels_dict = {
 
 inner_channel = 128
 
-def create_local_module(input_channel, output_channel, feature_num, label_num):
+def create_local_module(input_channel, output_channel, label_num):
     local_module = nn.Sequential()
     conv1 = nn.Conv2d(input_channel, inner_channel, kernel_size=1, padding=0)
     bn1 = nn.BatchNorm2d(inner_channel)
@@ -36,7 +36,7 @@ def create_local_module(input_channel, output_channel, feature_num, label_num):
     local_extract.add_module('bn3', bn3)
     local_module.add_module('local_extract', local_extract)
     local_module.add_module('pool', nn.AdaptiveAvgPool2d(1))
-    fc = nn.Linear(feature_num, label_num)
+    fc = nn.Linear(output_channel, label_num)
     local_module.add_module('fc', fc)
     return local_module
 
@@ -46,7 +46,6 @@ class PokerModel(nn.Module):
         input_channel = in_channels_dict[backbone_name]
         self.backbone = Backbone[backbone_name](False)
         unfreeze_backbone(self.backbone, backbone_unfreeze_layers)
-        inner_feature_num = input_channel * self.backbone.block_expansion
         self.hierarchy = hierarchy
         self.HC_loss = partial(Poker_loss, hierarchy=self.hierarchy)
         self.HC_prediction = partial(HC_prediction, hierarchy=self.hierarchy)
@@ -65,8 +64,7 @@ class PokerModel(nn.Module):
             else:
                 label_num = children_count + 1
                 local_input_channel = input_channel
-            local_module = create_local_module(local_input_channel, input_channel,
-                                               inner_feature_num, label_num)
+            local_module = create_local_module(local_input_channel, input_channel, label_num)
             self.local_modules.add_module(str(code), local_module)
 
     def forward(self, x, return_final_features=False):
