@@ -41,7 +41,7 @@ import torch.nn.functional as F
 #             predictions[:, leaf_index_map[code]] = code_score_dict[code] / p_len
 #     return predictions
 
-def HC_prediction(outputs, hierarchy, fn='sotmax'):
+def HC_prediction(outputs, hierarchy, fn='softmax'):
     que = queue.Queue()
     leaf_index_map = hierarchy['leaf_index_map']
     nodes = hierarchy['nodes']
@@ -58,7 +58,7 @@ def HC_prediction(outputs, hierarchy, fn='sotmax'):
         if children_count > 0:
             if fn == 'softmax':
                 output = F.log_softmax(outputs[code], dim=1)
-            elif fn == 'BCE':
+            else:
                 output = torch.log(torch.sigmoid(outputs[code]))
             children_scores = output.transpose(1, 0) + code_score_dict[code]
             children_scores = children_scores.transpose(1, 0)

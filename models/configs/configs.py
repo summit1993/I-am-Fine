@@ -13,7 +13,7 @@ class Configs:
     def __init__(self, img_size=224):
         self.img_size = img_size
         configs_dict = {
-            'device':  torch.device("cuda" if torch.cuda.is_available() else "cpu"),
+            'device':  torch.device("cuda:0" if torch.cuda.is_available() else "cpu"),
             'epoch_num': 20,
             'show_iters': 10,
             'model_save_epoch': 1,
@@ -27,6 +27,7 @@ class Configs:
             'model_zoo': os.path.join(program_dir, 'model_zoo'),
             'model_type': 'baseline',
             'local_model_name': 'softmax',
+            'multi-gpu': False,
         }
         self.configs_dict = configs_dict
         train_tmp = pickle.load(open(os.path.join(root_dir, 'data/train.pkl'), 'rb'))

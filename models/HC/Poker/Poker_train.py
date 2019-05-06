@@ -14,6 +14,10 @@ def Poker_model_train(data_set_info_dict, config_info, results_save_dir, model_s
         model.train()
     device = config_info['device']
     model.to(device)
+
+    if config_info['multi-gpu']:
+        model = nn.DataParallel(model)
+
     optimizer = optim.Adam(filter(lambda p: p.requires_grad, model.parameters()), lr=config_info['lr'],
                            weight_decay=config_info['weight_decay'])
     if not os.path.exists(model_save_dir):
