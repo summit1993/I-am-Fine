@@ -33,19 +33,19 @@ def Poker_loss(outputs, true_labels, device, hierarchy, loss_fn='softmax'):
         output = output[node_labels_index]
 
         if loss_fn == 'softmax':
-            true_labels = torch.zeros(node_labels_num, dtype=torch.long)
+            targets = torch.zeros(node_labels_num, dtype=torch.long)
         else:
-            true_labels = torch.zeros((node_labels_num, len(children_list)))
+            targets = torch.zeros((node_labels_num, len(children_list)))
 
         for i in range(node_labels_num):
             label = node_labels[i]
             if loss_fn == 'softmax':
-                true_labels[i] = label
+                targets[i] = label
             else:
-                true_labels[i][label] = 1.0
+                targets[i][label] = 1.0
 
-        true_labels = true_labels.to(device)
-        loss = criterion(output, true_labels)
+        targets = targets.to(device)
+        loss = criterion(output, targets)
         loss_num += 1
         total_loss += loss
 
