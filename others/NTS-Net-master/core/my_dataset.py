@@ -9,8 +9,9 @@ def train_transform(img):
     # if len(img.shape) == 2:
     #     img = np.stack([img] * 3, 2)
     # img = Image.fromarray(img, mode='RGB')
-    img = transforms.Resize((600, 600), Image.BILINEAR)(img)
-    img = transforms.RandomCrop(INPUT_SIZE)(img)
+    img = transforms.Resize(INPUT_SIZE)(img)
+    # img = transforms.Resize((600, 600), Image.BILINEAR)(img)
+    # img = transforms.RandomCrop(INPUT_SIZE)(img)
     img = transforms.RandomHorizontalFlip()(img)
     img = transforms.ToTensor()(img)
     img = transforms.Normalize([0.5, 5, 5], [0.5, 0.5, 0.5])(img)
@@ -20,8 +21,9 @@ def inference_transform(img):
     # if len(img.shape) == 2:
     #     img = np.stack([img] * 3, 2)
     # img = Image.fromarray(img, mode='RGB')
-    img = transforms.Resize((600, 600), Image.BILINEAR)(img)
-    img = transforms.CenterCrop(INPUT_SIZE)(img)
+    img = transforms.Resize(INPUT_SIZE)(img)
+    # img = transforms.Resize((600, 600), Image.BILINEAR)(img)
+    # img = transforms.CenterCrop(INPUT_SIZE)(img)
     img = transforms.ToTensor()(img)
     img = transforms.Normalize([0.5, 0.5, 0.5], [0.5, 0.5, 0.5])(img)
     return img

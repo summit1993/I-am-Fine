@@ -15,7 +15,7 @@ class Configs:
         configs_dict = {
             'device':  torch.device("cuda:0" if torch.cuda.is_available() else "cpu"),
             'epoch_num': 20,
-            'show_iters': 10,
+            'show_iters': 100,
             'model_save_epoch': 1,
             'backbone_name': 'resnet-101',
             'batch_size': 256,

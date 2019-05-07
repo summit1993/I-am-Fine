@@ -43,24 +43,9 @@ if resume:
     start_epoch = ckpt['epoch'] + 1
 creterion = torch.nn.CrossEntropyLoss()
 
-# define optimizers
-raw_parameters = list(net.pretrained_model.parameters())
-part_parameters = list(net.proposal_net.parameters())
-concat_parameters = list(net.concat_net.parameters())
-partcls_parameters = list(net.partcls_net.parameters())
-
-raw_optimizer = torch.optim.SGD(raw_parameters, lr=LR, momentum=0.9, weight_decay=WD)
-concat_optimizer = torch.optim.SGD(concat_parameters, lr=LR, momentum=0.9, weight_decay=WD)
-part_optimizer = torch.optim.SGD(part_parameters, lr=LR, momentum=0.9, weight_decay=WD)
-partcls_optimizer = torch.optim.SGD(partcls_parameters, lr=LR, momentum=0.9, weight_decay=WD)
-# raw_optimizer = torch.optim.Adam(raw_parameters, lr=LR)
-# concat_optimizer = torch.optim.Adam(concat_parameters, lr=LR)
-# part_optimizer = torch.optim.Adam(part_parameters, lr=LR)
-# partcls_optimizer = torch.optim.Adam(partcls_parameters, lr=LR)
-schedulers = [MultiStepLR(raw_optimizer, milestones=[60, 100], gamma=0.1),
-              MultiStepLR(concat_optimizer, milestones=[60, 100], gamma=0.1),
-              MultiStepLR(part_optimizer, milestones=[60, 100], gamma=0.1),
-              MultiStepLR(partcls_optimizer, milestones=[60, 100], gamma=0.1)]
+optimizer = torch.optim.SGD(net.parameters(), lr=LR, momentum=0.9, weight_decay=WD)
+# optimizer = torch.optim.Adam(net.parameters(), lr=LR, weight_decay=WD)
+schedulers = [MultiStepLR(optimizer, milestones=[60, 100], gamma=0.1)]
 net = net.cuda()
 net = DataParallel(net)
 
@@ -79,10 +64,7 @@ for epoch in range(start_epoch, 500):
     for i, data in enumerate(trainloader):
         img, label = data[0].cuda(), data[1].cuda()
         batch_size = img.size(0)
-        raw_optimizer.zero_grad()
-        part_optimizer.zero_grad()
-        concat_optimizer.zero_grad()
-        partcls_optimizer.zero_grad()
+        optimizer.zero_grad()
 
         raw_logits, concat_logits, part_logits, _, top_n_prob = net(img)
         part_loss = model.list_loss(part_logits.view(batch_size * PROPOSAL_NUM, -1),
@@ -95,10 +77,7 @@ for epoch in range(start_epoch, 500):
 
         total_loss = raw_loss + rank_loss + concat_loss + partcls_loss
         total_loss.backward()
-        raw_optimizer.step()
-        part_optimizer.step()
-        concat_optimizer.step()
-        partcls_optimizer.step()
+        optimizer.step()
         total_tmp += total_loss.item()
         raw_tmp += raw_loss.item()
         rank_tmp += rank_loss.item()

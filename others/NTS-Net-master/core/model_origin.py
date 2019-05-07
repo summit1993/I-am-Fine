@@ -12,30 +12,21 @@ class ProposalNet(nn.Module):
     def __init__(self):
         super(ProposalNet, self).__init__()
         self.down1 = nn.Conv2d(2048, 128, 3, 1, 1)
-        self.dbn1 = nn.BatchNorm2d(128)
         self.down2 = nn.Conv2d(128, 128, 3, 2, 1)
-        self.dbn2 = nn.BatchNorm2d(128)
         self.down3 = nn.Conv2d(128, 128, 3, 2, 1)
-        self.dbn3 = nn.BatchNorm2d(128)
         self.ReLU = nn.ReLU()
         self.tidy1 = nn.Conv2d(128, 6, 1, 1, 0)
-        # self.tbn1 = nn.BatchNorm2d(6)
         self.tidy2 = nn.Conv2d(128, 6, 1, 1, 0)
-        # self.tbn2 = nn.BatchNorm2d(6)
         self.tidy3 = nn.Conv2d(128, 9, 1, 1, 0)
-        # self.tbn3 = nn.BatchNorm2d(9)
 
     def forward(self, x):
         batch_size = x.size(0)
-        d1 = self.ReLU(self.dbn1(self.down1(x)))
-        d2 = self.ReLU(self.dbn2(self.down2(d1)))
-        d3 = self.ReLU(self.dbn3(self.down3(d2)))
+        d1 = self.ReLU(self.down1(x))
+        d2 = self.ReLU(self.down2(d1))
+        d3 = self.ReLU(self.down3(d2))
         t1 = self.tidy1(d1).view(batch_size, -1)
         t2 = self.tidy2(d2).view(batch_size, -1)
         t3 = self.tidy3(d3).view(batch_size, -1)
-        # t1 = self.tbn1(self.tidy1(d1)).view(batch_size, -1)
-        # t2 = self.tbn2(self.tidy2(d2)).view(batch_size, -1)
-        # t3 = self.tbn3(self.tidy3(d3)).view(batch_size, -1)
         return torch.cat((t1, t2, t3), dim=1)
 
 
@@ -43,7 +34,8 @@ class attention_net(nn.Module):
     def __init__(self, topN=4):
         super(attention_net, self).__init__()
         self.pretrained_model = resnet.resnet50(pretrained=True)
-        self.pretrained_model.add_module('raw_fc', nn.Linear(512 * 4, LABEL_NUM))
+        self.pretrained_model.avgpool = nn.AdaptiveAvgPool2d(1)
+        self.pretrained_model.fc = nn.Linear(512 * 4, LABEL_NUM)
         self.proposal_net = ProposalNet()
         self.topN = topN
         self.concat_net = nn.Linear(2048 * (CAT_NUM + 1), LABEL_NUM)
@@ -53,11 +45,7 @@ class attention_net(nn.Module):
         self.edge_anchors = (edge_anchors + 224).astype(np.int)
 
     def forward(self, x):
-        # resnet_out, rpn_feature, feature = self.pretrained_model(x)
-        rpn_feature = self.pretrained_model(x)
-        feature = self.pretrained_model.avgpool(rpn_feature)
-        feature = feature.view(feature.size(0), -1)
-        resnet_out = self.pretrained_model.raw_fc(feature)
+        resnet_out, rpn_feature, feature = self.pretrained_model(x)
         x_pad = F.pad(x, (self.pad_side, self.pad_side, self.pad_side, self.pad_side), mode='constant', value=0)
         batch = x.size(0)
         # we will reshape rpn to shape: batch * nb_anchor
@@ -77,9 +65,7 @@ class attention_net(nn.Module):
                 part_imgs[i:i + 1, j] = F.interpolate(x_pad[i:i + 1, :, y0:y1, x0:x1], size=(224, 224), mode='bilinear',
                                                       align_corners=True)
         part_imgs = part_imgs.view(batch * self.topN, 3, 224, 224)
-        part_features = self.pretrained_model(part_imgs.detach())
-        part_features = self.pretrained_model.avgpool(part_features)
-        part_features = part_features.view(part_features.size(0), -1)
+        _, _, part_features = self.pretrained_model(part_imgs.detach())
         part_feature = part_features.view(batch, self.topN, -1)
         part_feature = part_feature[:, :CAT_NUM, ...].contiguous()
         part_feature = part_feature.view(batch, -1)
@@ -104,7 +90,7 @@ def ranking_loss(score, targets, proposal_num=PROPOSAL_NUM):
     for i in range(proposal_num):
         targets_p = (targets > targets[:, i].unsqueeze(1)).type(torch.cuda.FloatTensor)
         pivot = score[:, i].unsqueeze(1)
-        loss_p = (1.0 - pivot + score) * targets_p
+        loss_p = (1 - pivot + score) * targets_p
         loss_p = torch.sum(F.relu(loss_p))
         loss += loss_p
     return loss / batch_size
