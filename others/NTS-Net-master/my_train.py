@@ -4,7 +4,7 @@ from torch.nn import DataParallel
 from datetime import datetime
 import pickle
 from torch.optim.lr_scheduler import MultiStepLR
-from config import BATCH_SIZE, PROPOSAL_NUM, SAVE_FREQ, LR, WD, resume, save_dir
+from config import BATCH_SIZE, PROPOSAL_NUM, SAVE_FREQ, LR, WD, resume, save_dir, show_iters
 from core import model, my_dataset
 from core.utils import init_log, progress_bar
 
@@ -49,10 +49,14 @@ part_parameters = list(net.proposal_net.parameters())
 concat_parameters = list(net.concat_net.parameters())
 partcls_parameters = list(net.partcls_net.parameters())
 
-raw_optimizer = torch.optim.SGD(raw_parameters, lr=LR, momentum=0.9, weight_decay=WD)
-concat_optimizer = torch.optim.SGD(concat_parameters, lr=LR, momentum=0.9, weight_decay=WD)
-part_optimizer = torch.optim.SGD(part_parameters, lr=LR, momentum=0.9, weight_decay=WD)
-partcls_optimizer = torch.optim.SGD(partcls_parameters, lr=LR, momentum=0.9, weight_decay=WD)
+# raw_optimizer = torch.optim.SGD(raw_parameters, lr=LR, momentum=0.9, weight_decay=WD)
+# concat_optimizer = torch.optim.SGD(concat_parameters, lr=LR, momentum=0.9, weight_decay=WD)
+# part_optimizer = torch.optim.SGD(part_parameters, lr=LR, momentum=0.9, weight_decay=WD)
+# partcls_optimizer = torch.optim.SGD(partcls_parameters, lr=LR, momentum=0.9, weight_decay=WD)
+raw_optimizer = torch.optim.Adam(raw_parameters, lr=LR,weight_decay=WD)
+concat_optimizer = torch.optim.Adam(concat_parameters, lr=LR,  weight_decay=WD)
+part_optimizer = torch.optim.Adam(part_parameters, lr=LR, weight_decay=WD)
+partcls_optimizer = torch.optim.Adam(partcls_parameters, lr=LR, weight_decay=WD)
 schedulers = [MultiStepLR(raw_optimizer, milestones=[60, 100], gamma=0.1),
               MultiStepLR(concat_optimizer, milestones=[60, 100], gamma=0.1),
               MultiStepLR(part_optimizer, milestones=[60, 100], gamma=0.1),
@@ -67,6 +71,11 @@ for epoch in range(start_epoch, 500):
     # begin training
     _print('--' * 50)
     net.train()
+    total_tmp = 0
+    raw_tmp = 0
+    rank_tmp = 0
+    concat_tmp = 0
+    partcls_tmp = 0
     for i, data in enumerate(trainloader):
         img, label = data[0].cuda(), data[1].cuda()
         batch_size = img.size(0)
@@ -90,9 +99,28 @@ for epoch in range(start_epoch, 500):
         part_optimizer.step()
         concat_optimizer.step()
         partcls_optimizer.step()
-        progress_bar(i, len(trainloader), 'train')
+        total_tmp += total_loss.item()
+        raw_tmp += raw_loss.item()
+        rank_tmp += rank_loss.item()
+        concat_tmp += concat_loss.item()
+        partcls_tmp += partcls_loss.item()
+        if (i + 1) % show_iters == 0:
+            total_tmp /= show_iters
+            raw_tmp /= show_iters
+            rank_tmp /= show_iters
+            concat_tmp /= show_iters
+            partcls_tmp /= show_iters
+            print('iter: %d, total loss: %f, raw_loss: %f, rank loss: %f, concat loss: %f, partcls_loss: %f'%(
+                i + 1, total_tmp, raw_tmp,  rank_tmp, concat_tmp, partcls_tmp))
+            total_tmp = 0
+            raw_tmp = 0
+            rank_tmp = 0
+            concat_tmp = 0
+            partcls_tmp = 0
+        # progress_bar(i, len(trainloader), 'train')
 
     if epoch % SAVE_FREQ == 0:
+        net.eval()
         # evaluate on val set
         val_loss = 0
         val_correct = 0
@@ -114,7 +142,7 @@ for epoch in range(start_epoch, 500):
         val_acc = float(val_correct) / total
         val_loss = val_loss / total
         _print(
-            'epoch:{} - test loss: {:.3f} and test acc: {:.3f} total sample: {}'.format(
+            'epoch:{} - val loss: {:.3f} and val acc: {:.3f} val sample: {}'.format(
                 epoch,
                 val_loss,
                 val_acc,
@@ -126,14 +154,15 @@ for epoch in range(start_epoch, 500):
         prediction_epoch = []
         for i, data in enumerate(testloader):
             with torch.no_grad():
-                img, label = data[0].cuda(), data[1].cuda()
+                img = data.cuda()
                 _, concat_logits, _, _, _ = net(img)
                 outputs = concat_logits.to('cpu').numpy()
                 predictions = outputs.argsort(axis=1)
                 predictions = predictions[:, -3:]
                 prediction_epoch.extend(predictions.tolist())
+                progress_bar(i, len(testloader), 'test set')
         epoch_result['test_predictions'] = prediction_epoch
-        pickle.dump(epoch_result, open(save_dir + '_test_predict_' + str(epoch) + '.pkl', 'wb'))
+        pickle.dump(epoch_result, open(os.path.join(save_dir, 'test_predict_' + str(epoch) + '.pkl'), 'wb'))
 
         # save model
         net_state_dict = net.module.state_dict()
