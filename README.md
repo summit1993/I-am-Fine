@@ -34,11 +34,14 @@
 | 4 | 85.4 | - | 88.5 |  89.1 |
 | 5 | 85.3 | 92.5 | 87.3 | - | 
 | 6 | 89.4 | 94.5 | 92.2 | 93.0 |
+| 7 | 88.7 | 93.3 | - | 91.4 |
 
 
 1. Generating Attention from Classifier Activations for Fine-grained Recognition. arXiv, 2018-11
-2. Learning to Navigate for Fine-grained Classification. ECCV, 2018
+2. Learning to Navigate for Fine-grained Classification. ECCV, 2018 ([code](https://github.com/yangze0930/NTS-Net))
 3. Weakly Supervised Complementary Parts Models for Fine-Grained Image Classification from the Bottom Up. arXiv, 2019-3
 4. Guided Zoom: Questioning Network Evidence for Fine-grained Classification. arXiv, 2018-12
 5. Look Closer to See Better: Recurrent Attention Convolutional Neural Network for Fine-grained Image Recognition. CVPR, 2017
 6. See Better Before Looking Closer: Weakly Supervised Data Augmentation Network for Fine-Grained Visual Classification. arXiv, 2019-3
+7. Towards Faster Training of Global Covariance Pooling Networks by 
+Iterative Matrix Square Root Normalization. CVPR, 2018 ([code](https://github.com/jiangtaoxie/fast-MPN-COV))
