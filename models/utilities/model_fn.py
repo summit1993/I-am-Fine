@@ -15,6 +15,7 @@ def model_process(model, loaders, optimizer, config_info, log_file_name_prefix, 
     train_loader = loaders['train']
     for epoch in range(epoch_num):
         epoch_result = {}
+        model.train()
         for step, data in enumerate(train_loader, 0):
             images, labels = data
             images, labels = images.to(device), labels.to(device)
@@ -40,6 +41,7 @@ def model_process(model, loaders, optimizer, config_info, log_file_name_prefix, 
                 }, os.path.join(model_save_dir, 'checkpoint_' + str(epoch) + '.tar'))
 
         with torch.no_grad():
+            model.eval()
             print('*' * 10, 'Begin to validation', '*' * 10)
             if 'val' in loaders:
                 val_loader = loaders['val']

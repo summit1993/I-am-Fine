@@ -2,9 +2,10 @@
 import torch.nn as nn
 from backbone.backbone import *
 from utilities.common_tools import unfreeze_backbone
-from functools import partial
-from HC.Poker.Poker_loss import *
+from HC.Poker.V2.Poker_loss import *
 from HC.HC_prediction import *
+import torch
+from functools import partial
 
 in_channels_dict = {
     'resnet-18': 512,
@@ -48,12 +49,13 @@ class PokerModel(nn.Module):
         self.backbone = Backbone[backbone_name](False)
         unfreeze_backbone(self.backbone, backbone_unfreeze_layers)
         self.hierarchy = hierarchy
-        self.HC_loss = partial(Poker_loss, hierarchy=self.hierarchy, loss_fn=loss_fn)
-        self.HC_prediction = partial(HC_prediction, hierarchy=self.hierarchy, fn=loss_fn)
+        self.local_loss = partial(Poker_loss, hierarchy=self.hierarchy, loss_fn=loss_fn)
+        self.loss_criterion = nn.CrossEntropyLoss()
         self.inners_code_list = self.hierarchy['inners_code_list']
         nodes = self.hierarchy['nodes']
         self.relu = nn.ReLU()
         self.local_modules = nn.Sequential()
+        last_fc_in_num = 0
         for code in self.inners_code_list:
             node = nodes[code]
             children_count = len(node.get_children_code())
@@ -66,11 +68,13 @@ class PokerModel(nn.Module):
                     label_num = children_count + 1
                 else:
                     label_num = children_count
+            last_fc_in_num += label_num
             local_input_channel = input_channel
             local_module = create_local_module(local_input_channel, label_num)
             self.local_modules.add_module(str(code), local_module)
+            self.predict_fc = nn.Linear(last_fc_in_num, len(self.hierarchy['leafs_code_list']))
 
-    def forward(self, x, return_final_features=False):
+    def forward(self, x):
         que = queue.Queue()
         que.put(-1)
         nodes = self.hierarchy['nodes']
@@ -98,7 +102,20 @@ class PokerModel(nn.Module):
             local_x = local_x.view(local_x.size(0), -1)
             local_y = local_module.fc(local_x)
             prediction_outputs_dict[code] = local_y
-        if return_final_features:
-            return prediction_outputs_dict, feature_outputs_dict
-        else:
-            return prediction_outputs_dict
+        codes = list(prediction_outputs_dict.keys())
+        codes.sort()
+        list_tmp = []
+        for code in codes:
+            list_tmp.append(prediction_outputs_dict[code])
+        local_predictions = torch.cat(list_tmp, 1)
+        predictions = self.predict_fc(local_predictions)
+        return (predictions, prediction_outputs_dict)
+
+    def HC_loss(self, outputs, labels, device):
+        loss_local = self.local_loss(outputs[1], labels, device)
+        loss_global = self.loss_criterion(outputs[0], labels)
+        loss = loss_local + loss_global
+        return loss
+
+    def HC_prediction(self, x):
+        return x[0]

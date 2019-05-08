@@ -10,8 +10,11 @@ def baseline_classification_train(data_set_info_dict, config_info, results_save_
     data_loaders = get_loaders(data_set_info_dict, config_info)
     model = BaselineClassificationModel(config_info['backbone_name'], data_set_info_dict['label_num'],
                                         config_info['backbone_unfreeze_layers'])
-    device = config_info['device']
-    model.to(device)
+    model = model.cuda()
+    if config_info['multi-gpu']:
+        model = nn.DataParallel(model)
+    # device = config_info['device']
+    # model.to(device)
     optimizer = optim.Adam(filter(lambda p: p.requires_grad, model.parameters()), lr=config_info['lr'], weight_decay=config_info['weight_decay'])
     if not os.path.exists(model_save_dir):
         os.makedirs(model_save_dir)
