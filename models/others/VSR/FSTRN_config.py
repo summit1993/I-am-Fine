@@ -4,8 +4,8 @@ import pickle
 import os
 import torch
 
-# root_dir = '/data1/youku'
-root_dir = 'D:\\program\\deep_learning\\Deep-HC\\I-am-Fine\\VSR\\data'
+root_dir = '/data1/youku'
+# root_dir = 'D:\\program\\deep_learning\\Deep-HC\\I-am-Fine\\VSR\\data'
 
 class Configs:
     def __init__(self):

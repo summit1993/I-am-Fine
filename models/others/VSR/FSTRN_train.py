@@ -1,7 +1,7 @@
 # -*- coding: UTF-8 -*-
 import torch.optim as optim
 from FSTRN_model import *
-import os
+from VSR_metrics import *
 from load_data import *
 
 def FSTRN_train(data_set_info_dict, config_info, results_save_dir, model_save_dir):
@@ -30,6 +30,7 @@ def model_process(model, loaders, optimizer, config_info,log_file_name_prefix, m
     criterion = nn.L1Loss()
     train_loader = loaders['train']
     for epoch in range(epoch_num):
+        model.train()
         for step, data in enumerate(train_loader, 0):
             LR_volums, HR_images, LR_R_image = data
             LR_volums, HR_images, LR_R_image = LR_volums.to(device), HR_images.to(device), LR_R_image.to(device)
@@ -53,3 +54,23 @@ def model_process(model, loaders, optimizer, config_info,log_file_name_prefix, m
                         'model_state_dict': model.state_dict(),
                         'optimizer_state_dict': optimizer.state_dict()
                     }, os.path.join(model_save_dir, 'checkpoint_' + str(epoch) + '.tar'))
+
+            with torch.no_grad():
+                model.eval()
+                print('*' * 10, 'Begin to validation', '*' * 10)
+                if 'val' in loaders:
+                    val_loader = loaders['val']
+                    count = 0.0
+                    PSNR = 0.0
+                    for _, val_data in enumerate(val_loader, 0):
+                        LR_volums, HR_images, LR_R_image = val_data
+                        LR_volums, LR_R_image = LR_volums.to(device), LR_R_image.to(device)
+                        outputs = model([LR_volums, LR_R_image])
+                        outputs = outputs.to('cpu').numpy()
+                        HR_images = HR_images.numpy()
+                        for i  in range(HR_images.shape[0]):
+                               PSNR += cal_img_PSNR(outputs[i], HR_images[i])
+                        count += HR_images.shape[0]
+                    print('PSNR:\t', PSNR * 1.0 / count)
+                print('*' * 10, 'Finish validation', '*' * 10)
+
