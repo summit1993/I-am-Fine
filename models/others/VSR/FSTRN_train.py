@@ -55,22 +55,22 @@ def model_process(model, loaders, optimizer, config_info,log_file_name_prefix, m
                         'optimizer_state_dict': optimizer.state_dict()
                     }, os.path.join(model_save_dir, 'checkpoint_' + str(epoch) + '.tar'))
 
-            with torch.no_grad():
-                model.eval()
-                print('*' * 10, 'Begin to validation', '*' * 10)
-                if 'val' in loaders:
-                    val_loader = loaders['val']
-                    count = 0.0
-                    PSNR = 0.0
-                    for _, val_data in enumerate(val_loader, 0):
-                        LR_volums, HR_images, LR_R_image = val_data
-                        LR_volums, LR_R_image = LR_volums.to(device), LR_R_image.to(device)
-                        outputs = model([LR_volums, LR_R_image])
-                        outputs = outputs.to('cpu').numpy()
-                        HR_images = HR_images.numpy()
-                        for i  in range(HR_images.shape[0]):
-                               PSNR += cal_img_PSNR(outputs[i], HR_images[i])
-                        count += HR_images.shape[0]
-                    print('PSNR:\t', PSNR * 1.0 / count)
-                print('*' * 10, 'Finish validation', '*' * 10)
+        with torch.no_grad():
+            model.eval()
+            print('*' * 10, 'Begin to validation', '*' * 10)
+            if 'val' in loaders:
+                val_loader = loaders['val']
+                count = 0.0
+                PSNR = 0.0
+                for _, val_data in enumerate(val_loader, 0):
+                    LR_volums, HR_images, LR_R_image = val_data
+                    LR_volums, LR_R_image = LR_volums.to(device), LR_R_image.to(device)
+                    outputs = model([LR_volums, LR_R_image])
+                    outputs = outputs.to('cpu').numpy()
+                    HR_images = HR_images.numpy()
+                    for i  in range(HR_images.shape[0]):
+                           PSNR += cal_img_PSNR(outputs[i], HR_images[i])
+                    count += HR_images.shape[0]
+                print('PSNR:\t', PSNR * 1.0 / count)
+            print('*' * 10, 'Finish validation', '*' * 10)
 
