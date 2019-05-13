@@ -1,8 +1,8 @@
 # -*- coding: UTF-8 -*-
 import torch.optim as optim
-from HC.Poker.Poker_model import *
+from HC.Poker.V2.Poker_model import *
 from utilities.data_loader import *
-from HC.HC_fn import *
+from HC.Poker.V2.V2_HC_fn import *
 
 def Poker_model_train(data_set_info_dict, config_info, results_save_dir, model_save_dir):
     data_loaders = get_loaders(data_set_info_dict, config_info)
