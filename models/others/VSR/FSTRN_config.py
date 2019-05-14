@@ -14,7 +14,7 @@ class Configs:
             'rfb_num': 4,
             'batch_size': 16,
             'num_workers': 10,
-            'lr': 1e-5,
+            'lr': 1e-4,
             'weight_decay': 1e-5,
             'epoch_num': 20,
             'show_iters': 1,
@@ -36,6 +36,6 @@ images_std = [0.5, 0.5, 0.5]
 def get_transform():
     transform = transforms.Compose([
             transforms.ToTensor(),
-            transforms.Normalize(std=images_std, mean=images_mean),
+            # transforms.Normalize(std=images_std, mean=images_mean),
         ])
     return transform
