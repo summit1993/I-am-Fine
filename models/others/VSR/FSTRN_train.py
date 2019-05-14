@@ -71,6 +71,10 @@ def model_process(model, loaders, optimizer, config_info,log_file_name_prefix, m
                     for i  in range(HR_images.shape[0]):
                            PSNR += cal_img_PSNR(outputs[i], HR_images[i])
                     count += HR_images.shape[0]
-                print('PSNR:\t', PSNR * 1.0 / count)
+                PSNR = PSNR * 1.0 / count
+                print('PSNR:\t', PSNR)
+                fw = open('val_result_' + str(epoch) + '.txt', 'w')
+                fw.write(str(PSNR))
+                fw.close()
             print('*' * 10, 'Finish validation', '*' * 10)
 

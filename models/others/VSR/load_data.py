@@ -48,6 +48,7 @@ class SVRDataset(Dataset):
         if self.volume_k == 0:
             LR_Volume[0] = LR_image
         else:
+            LR_Volume[self.volume_k] = LR_image
             left_begin = max(1, image_index - self.volume_k)
             right_end = min(image_index + self.volume_k, item['nums'])
             for k in range(image_index - left_begin):

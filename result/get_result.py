@@ -1,5 +1,4 @@
 import pickle
-# import pandas as pd
 
 data_pkl = pickle.load(open('1.pkl', 'rb'))
 test_pkl = pickle.load(open('test.pkl', 'rb'))
