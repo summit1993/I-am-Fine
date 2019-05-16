@@ -3,6 +3,7 @@ import torch.optim as optim
 from FSTRN_model import *
 from VSR_metrics import *
 from load_data import *
+import numpy as np
 
 def FSTRN_train(data_set_info_dict, config_info, results_save_dir, model_save_dir):
     data_loaders = get_SVR_loaders(data_set_info_dict, config_info)
@@ -67,6 +68,9 @@ def model_process(model, loaders, optimizer, config_info,log_file_name_prefix, m
                     LR_volums, LR_R_image = LR_volums.to(device), LR_R_image.to(device)
                     outputs = model([LR_volums, LR_R_image])
                     outputs = outputs.to('cpu').numpy()
+                    outputs = np.rint(outputs)
+                    outputs[outputs < 0] = 0
+                    outputs[outputs > 255] = 255
                     HR_images = HR_images.numpy()
                     for i  in range(HR_images.shape[0]):
                            PSNR += cal_img_PSNR(outputs[i], HR_images[i])
